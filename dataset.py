@@ -23,7 +23,8 @@ class SeepDataset(Dataset):
         mask_path = os.path.join(self.masks_dir, self.masks[idx])
         image = Image.open(img_path).convert('L')
         mask = Image.open(mask_path).convert('L')
-        if self.transform:
-            image = self.transform(image)
-            mask = self.transform(mask)
+        transform = transforms.Compose([transforms.ToTensor()])
+        image = transform(image)
+        mask = transform(mask)
+
         return image, mask

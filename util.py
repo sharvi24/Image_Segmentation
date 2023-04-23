@@ -6,30 +6,41 @@ from torchvision import transforms
 from PIL import Image
 import os
 
-import SeepDataset
+from dataset import SeepDataset
+from model import UNet
 
-train_image_dir = os.path.join(os.getcwd, 'train_images_256')
-train_mask_dir = os.path.join(os.getcwd, 'train_masks_256')
-val_image_dir = os.path.join(os.getcwd, 'train_images_256')
-val_mask_dir = os.path.join(os.getcwd, 'train_masks_256')
-test_image_dir = os.path.join(os.getcwd, 'train_images_256')
-test_mask_dir = os.path.join(os.getcwd, 'train_masks_256')
+root_dir = os.getcwd()
+print("root here",root_dir)
+train_image_dir = os.path.join(root_dir, 'train_images_256')
+print("train here",train_image_dir)
+# train_mask_dir = "/Users/sharvitomar/Desktop/Sem4/cgg/Image_Segmentation/train_masks_256"
+# val_image_dir= train_image_dir
+# val_mask_dir= train_mask_dir
+# test_image_dir= train_image_dir
+# test_mask_dir= train_mask_dir
+
+
+train_mask_dir = os.path.join(root_dir, 'train_masks_256')
+val_image_dir = os.path.join(root_dir, 'train_images_256')
+val_mask_dir = os.path.join(root_dir, 'train_masks_256')
+test_image_dir = os.path.join(root_dir, 'train_images_256')
+test_mask_dir = os.path.join(root_dir, 'train_masks_256')
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 # Define the DataLoader to load the data in batches
-train_data = SeepDataset(train_image_dir, train_mask_dir)
+train_data = SeepDataset(root_dir)
 train_loader = DataLoader(train_data, batch_size=4, shuffle=True)
 
-val_data = SeepDataset(val_image_dir, val_mask_dir)
+val_data = SeepDataset(root_dir)
 val_loader = DataLoader(val_data, batch_size=4, shuffle=False)
-
+model = UNet()
 # Define the loss function and optimizer
 criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
 # Train the model
-num_epochs = 10
+num_epochs = 1
 
 for epoch in range(num_epochs):
     print('Epoch {}/{}'.format(epoch, num_epochs - 1))
@@ -37,11 +48,11 @@ for epoch in range(num_epochs):
 
     for phase in ['train', 'val']:
         if phase == 'train':
-        model.train()
-        dataloader = train_loader
-    else:
-        model.eval()
-        dataloader = val_loader
+            model.train()
+            dataloader = train_loader
+        else:
+            model.eval()
+            dataloader = val_loader
 
     running_loss = 0.0
     running_corrects = 0
@@ -71,7 +82,7 @@ for epoch in range(num_epochs):
 print('Training complete')
 
 # Evaluate the model on the test set
-test_data = SeepDataset(test_image_dir, test_mask_dir)
+test_data = SeepDataset(root_dir)
 test_loader = DataLoader(test_data, batch_size=4, shuffle=False)
 
 model.eval()
