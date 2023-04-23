@@ -1,10 +1,11 @@
-import torch
+import os
 import torch.nn as nn
 import torch.nn.functional as F
-from torch.utils.data import Dataset, DataLoader
+
+from torch.utils.data import Dataset
 from torchvision import transforms
 from PIL import Image
-import os
+
 
 class SeepDataset(Dataset):
     def __init__(self, root_dir, transform=None):
@@ -26,5 +27,4 @@ class SeepDataset(Dataset):
         transform = transforms.Compose([transforms.ToTensor()])
         image = transform(image)
         mask = transform(mask)
-
         return image, mask

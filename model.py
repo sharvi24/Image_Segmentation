@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+
 class UNet(nn.Module):
     def __init__(self):
         super(UNet, self).__init__()
@@ -10,14 +11,17 @@ class UNet(nn.Module):
         self.conv3 = nn.Conv2d(128, 256, 3, padding=1)
         self.conv4 = nn.Conv2d(256, 512, 3, padding=1)
         self.conv5 = nn.Conv2d(512, 1024, 3, padding=1)
-        self.conv6 = nn.Conv2d(1024, 512, 3, padding=1)
-        self.conv7 = nn.Conv2d(512, 256, 3, padding=1)
-        self.conv8 = nn.Conv2d(256, 128, 3, padding=1)
-        self.conv9 = nn.Conv2d(128, 64, 3, padding=1)
+        # 1024 + 512 = 1536
+        self.conv6 = nn.Conv2d(1536, 512, 3, padding=1)
+        # 512+256 = 768
+        self.conv7 = nn.Conv2d(768, 256, 3, padding=1)
+        self.conv8 = nn.Conv2d(384, 128, 3, padding=1)
+        self.conv9 = nn.Conv2d(192, 64, 3, padding=1)
         self.conv10 = nn.Conv2d(64, 7, 1)
 
         self.max_pool = nn.MaxPool2d(2, 2)
-        self.upsample = nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True)
+        self.upsample = nn.Upsample(
+            scale_factor=2, mode='bilinear', align_corners=True)
 
     def forward(self, x):
         x1 = F.relu(self.conv1(x))
@@ -38,3 +42,5 @@ class UNet(nn.Module):
         x8 = F.relu(self.conv8(torch.cat([x8, x2], dim=1)))
         x9 = self.upsample(x8)
         x9 = F.relu(self.conv9(torch.cat([x9, x1], dim=1)))
+        x10 = self.conv10(x9)
+        return x10
